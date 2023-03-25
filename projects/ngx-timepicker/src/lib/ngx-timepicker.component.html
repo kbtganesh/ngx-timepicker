@@ -1,0 +1,69 @@
+<mat-menu #timePicker="matMenu" xPosition="after" class="timePickerMenu">
+  <div
+    class="container"
+    (click)="$event.stopPropagation()"
+    (keydown)="$event.stopPropagation()"
+  >
+    <div class="time-container">
+      <div class="hour">
+        <i
+          class="arrow-icon up-arrow material-icons"
+          aria-hidden="true"
+          (click)="increment('hour')"
+        >
+          keyboard_arrow_up
+        </i>
+        <input
+          name="hour-input"
+          (keydown)="onDigitInput($event, 'hour')"
+          (blur)="onBlur($event, 'hour')"
+          [(ngModel)]="selectedHour"
+          class="hour-input"
+          type="number"
+          (ngModelChange)="validate($event, 'hour')"
+          [maxlength]="2"
+        />
+        <i
+          class="arrow-icon down-arrow material-icons"
+          aria-hidden="true"
+          (click)="decrement('hour')"
+        >
+          keyboard_arrow_down
+        </i>
+      </div>
+      <div class="minute">
+        <i
+          class="arrow-icon up-arrow material-icons"
+          aria-hidden="true"
+          (click)="increment('minute')"
+        >
+          keyboard_arrow_up
+        </i>
+        <input
+          name="minute-input"
+          (keydown)="onDigitInput($event, 'minute')"
+          (blur)="onBlur($event, 'minute')"
+          [(ngModel)]="selectedMinute"
+          class="minute-input"
+          type="number"
+          (ngModelChange)="validate($event, 'minute')"
+        />
+        <i
+          class="arrow-icon down-arrow material-icons"
+          aria-hidden="true"
+          (click)="decrement('minute')"
+        >
+          keyboard_arrow_down
+        </i>
+      </div>
+    </div>
+    <button
+      mat-mini-fab
+      color="primary"
+      class="done-btn mt-2"
+      (click)="hidePicker()"
+    >
+      <mat-icon class="done-icon">done</mat-icon>
+    </button>
+  </div>
+</mat-menu>

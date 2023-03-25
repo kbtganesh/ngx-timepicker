@@ -1,0 +1,14 @@
+<h1 class="welcome">WELCOME ANGULAR 13 LIBRARY</h1>
+<!-- <mat-form-field> -->
+  <input
+    [matMenuTriggerFor]="timePicker.menu"
+    #timePickerTrigger="matMenuTrigger"
+    [ngxTimepicker]="timePicker"
+    [(ngModel)]="selectedTime"
+    placeholder="Start Time"
+    type="text"
+    readonly
+  />
+<!-- </mat-form-field> -->
+<app-time-picker #timePicker [trigger]="timePickerTrigger"></app-time-picker>
+<div>selectedTime-{{selectedTime}}</div>
