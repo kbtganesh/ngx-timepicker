@@ -28,14 +28,15 @@ export class NgxTimepickerComponent {
   selectedHour: string = '09';
   selectedMinute: string = '00';
   selectedTime: string = '';
+  selectedMeridian: 'AM' | 'PM' = 'AM';
   showTimePicker: boolean = false;
   @Input('trigger') timePickerTriger!: MatMenuTrigger;
-  @Input() meridian!: boolean;
   // @Input() triggerElement!: HTMLInputElement;
   // @Output() valueChange = new EventEmitter();
   @ViewChild(MatMenu, { static: true }) menu!: MatMenu;
   onClose;
   isDisabled: boolean = false;
+  hasMeridian: boolean = false;
   constructor(private cdRef: ChangeDetectorRef) {
     for (let i = 1; i <= 12; i++) {
       this.hours.push(i);
@@ -49,19 +50,24 @@ export class NgxTimepickerComponent {
 
   ngAfterViewInit() {
     this.timePickerTriger.menuOpened.subscribe((res) => {
-      console.log("kbt ~ file: time-picker.component.ts:52 ~ TimePickerComponent ~ this.timePickerTriger.menuOpened.subscribe ~ res:", res)
-      
+      console.log(
+        'kbt ~ file: time-picker.component.ts:52 ~ TimePickerComponent ~ this.timePickerTriger.menuOpened.subscribe ~ res:',
+        res
+      );
     });
-
   }
 
-  setValue(value) {
-    console.log("kbt ~ SETVALUE:", value)
-    if (value?.includes(':')) {
-      const [hour, minute] = value?.split(':');
+  setValue(value, hasMeridian) {
+    console.log("kbt ~ file: ngx-timepicker.component.ts:61 ~ NgxTimepickerComponent ~ setValue ~ value:", value, hasMeridian)
+    const [hhmm, meridian] = value ? value?.split(' ') : [];
+    if (hasMeridian) this.selectedMeridian = meridian || 'AM';
+
+    if (hhmm?.includes(':')) {
+      const [hour, minute] = hhmm?.split(':');
       this.selectedHour = hour;
       this.selectedMinute = minute;
     }
+    this.hasMeridian = hasMeridian;
     this.selectedTime = `${this.selectedHour}:${this.selectedMinute}`;
   }
 
@@ -138,8 +144,8 @@ export class NgxTimepickerComponent {
   }
 
   calculateHour(hour, manualEntry?: boolean) {
-    const maxHour = this.meridian ? 12 : 23;
-    const minHour = this.meridian ? 1 : 0;
+    const maxHour = this.hasMeridian ? 12 : 23;
+    const minHour = this.hasMeridian ? 1 : 0;
     let modifiedHour = this.calculateTime(hour, minHour, maxHour, manualEntry);
     if (manualEntry) return modifiedHour ? modifiedHour.toString() : '';
     return this.padWithZero(modifiedHour);
@@ -196,6 +202,9 @@ export class NgxTimepickerComponent {
       this.padWithZero(this.selectedHour) +
       ':' +
       this.padWithZero(this.selectedMinute);
+    if (this.hasMeridian) {
+      this.selectedTime += ` ${this.selectedMeridian}`;
+    }
     this.timePickerTriger.closeMenu();
     this.onClose && this.onClose(this.selectedTime);
     this.selectedTime = '';

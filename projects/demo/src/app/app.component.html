@@ -1,14 +1,21 @@
 <h1 class="welcome">WELCOME ANGULAR 13 LIBRARY</h1>
-<!-- <mat-form-field> -->
+<label>
+  <input type="checkbox" [(ngModel)]="enableMeridian">
+  {{enableMeridian ? 'Checked' : 'Unchecked'}}
+</label>
+<mat-form-field>
   <input
+  matInput
     [matMenuTriggerFor]="timePicker.menu"
     #timePickerTrigger="matMenuTrigger"
     [ngxTimepicker]="timePicker"
     [(ngModel)]="selectedTime"
     placeholder="Start Time"
+    [meridian]="enableMeridian"
     type="text"
     readonly
   />
-<!-- </mat-form-field> -->
+</mat-form-field>
 <app-time-picker #timePicker [trigger]="timePickerTrigger"></app-time-picker>
 <div>selectedTime-{{selectedTime}}</div>
+<div>selectedTime-{{enableMeridian}}</div>

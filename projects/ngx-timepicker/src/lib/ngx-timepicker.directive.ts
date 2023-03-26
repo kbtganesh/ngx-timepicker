@@ -28,13 +28,11 @@ export class NgxTimepickerDirective
   @Input('ngxTimepicker') timePicker!: NgxTimepickerComponent | null;
   isDisabled: boolean = false;
   _value;
-  constructor(private elementRef: ElementRef, private trigger: MatMenuTrigger ,private renderer: Renderer2) {
-    renderer.setStyle(elementRef.nativeElement, 'cursor', 'pointer');
-  }
+  @Input('meridian') meridian: boolean = false;
   @Input()
   set value(value: string) {
     console.log("kbt ~ file: time-picker-trigger.directive.ts:32 ~ setvalue ~ value:", value)
-    this.timePicker?.setValue(value);
+    this.timePicker?.setValue(value, this.meridian);
     this._value = value;
     this.updateInputValue(value);
 
@@ -43,10 +41,14 @@ export class NgxTimepickerDirective
     return this._value;
   }
 
+  constructor(private elementRef: ElementRef, private trigger: MatMenuTrigger ,private renderer: Renderer2) {
+    renderer.setStyle(elementRef.nativeElement, 'cursor', 'pointer');
+  }
+
   ngAfterViewInit() {
-    this.trigger.menuOpened.subscribe(res => {
-      console.log("kbt ~ file: time-picker-trigger.directive.ts:44 ~ ngAfterViewInit ~ this.value:", this.value)
-      this.timePicker?.setValue(this.value);
+    this.meridian
+    this.trigger.menuOpened.subscribe(_ => {
+      this.timePicker?.setValue(this.value, this.meridian);
     })
   }
 

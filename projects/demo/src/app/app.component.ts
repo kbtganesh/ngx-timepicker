@@ -7,5 +7,6 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'demo';
-  selectedTime = '';
+  selectedTime = '1:00 PM';
+  enableMeridian: boolean = true;
 }
