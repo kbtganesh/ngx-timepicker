@@ -57,7 +57,7 @@
         </i>
       </div>
       <div *ngIf="hasMeridian" class="meridian">
-        <mat-button-toggle-group vertical [(ngModel)]="selectedMeridian">
+        <mat-button-toggle-group vertical [(ngModel)]="selectedMeridian" (ngModelChange)="resetError()">
           <mat-button-toggle value="AM">
             AM
           </mat-button-toggle>
@@ -67,11 +67,15 @@
         </mat-button-toggle-group>
       </div>
     </div>
+    <div class="error" *ngIf="minTimeError || maxTimeError">
+      <div class="min-error" *ngIf="minTimeError">{{minTimeError}}</div>
+      <div class="max-error" *ngIf="maxTimeError">{{maxTimeError}}</div>
+    </div>
     <button
       mat-mini-fab
       color="primary"
       class="done-btn mt-2"
-      (click)="hidePicker()"
+      (click)="onDone()"
     >
       <mat-icon class="done-icon">done</mat-icon>
     </button>

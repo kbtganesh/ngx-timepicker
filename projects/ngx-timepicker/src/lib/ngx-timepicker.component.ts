@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Time } from '@angular/common';
 import {
   Component,
   Input,
@@ -13,6 +13,12 @@ import { ControlValueAccessor, FormsModule } from '@angular/forms';
 // import { MaterialModule } from 'src/app/material.module';
 // import { NgxMatTimepickerModule } from 'ngx-mat-timepicker';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
+
+interface TimeRangeValidation {
+  status: boolean;
+  beforeMin: boolean;
+  afterMax: boolean;
+}
 
 @Component({
   // standalone: true,
@@ -32,11 +38,20 @@ export class NgxTimepickerComponent {
   showTimePicker: boolean = false;
   @Input('trigger') timePickerTriger!: MatMenuTrigger;
   // @Input() triggerElement!: HTMLInputElement;
-  // @Output() valueChange = new EventEmitter();
+  @Output() onerror = new EventEmitter();
   @ViewChild(MatMenu, { static: true }) menu!: MatMenu;
   onClose;
   isDisabled: boolean = false;
   hasMeridian: boolean = false;
+  minTime: string = '';
+  maxTime: string = '';
+  minTimeError: string = '';
+  maxTimeError: string = '';
+
+  @Input() showError: boolean = true;
+  @Input() minErrorMessage: string = '';
+  @Input() maxErrorMessage: string = '';
+
   constructor(private cdRef: ChangeDetectorRef) {
     for (let i = 1; i <= 12; i++) {
       this.hours.push(i);
@@ -57,8 +72,16 @@ export class NgxTimepickerComponent {
     });
   }
 
-  setValue(value, hasMeridian) {
-    console.log("kbt ~ file: ngx-timepicker.component.ts:61 ~ NgxTimepickerComponent ~ setValue ~ value:", value, hasMeridian)
+  setValue(value, hasMeridian, minTime, maxTime) {
+    console.log(
+      'kbt ~ file: ngx-timepicker.component.ts:61 ~ NgxTimepickerComponent ~ setValue ~ value:',
+      value,
+      hasMeridian,
+      minTime,
+      maxTime
+    );
+    this.minTime = minTime;
+    this.maxTime = maxTime;
     const [hhmm, meridian] = value ? value?.split(' ') : [];
     if (hasMeridian) this.selectedMeridian = meridian || 'AM';
 
@@ -76,12 +99,8 @@ export class NgxTimepickerComponent {
   }
 
   onDigitInput(event: KeyboardEvent, type?) {
-    console.log('KBT KEYDOWN');
-    console.log(
-      'kbt ~ file: time-picker.component.ts:56 ~ TimePickerComponent ~ onDigitInput ~ val:',
-      event,
-      type
-    );
+    this.resetError();
+
     const arrowUp = event.key === 'ArrowUp';
     const arrowDown = event.key === 'ArrowDown';
 
@@ -98,17 +117,9 @@ export class NgxTimepickerComponent {
     }, 300);
   }
 
-  // onKeyDown(event: KeyboardEvent, type): void {
-  //   if (event.key === 'ArrowUp') {
-  //     console.log('Up arrow key pressed');
-  //     // Handle up arrow key action
-  //   } else if (event.key === 'ArrowDown') {
-  //     console.log('Down arrow key pressed');
-  //     // Handle down arrow key action
-  //   }
-  // }
-
   increment(type) {
+    this.resetError();
+
     const isHour = type === 'hour';
     if (isHour) {
       const hour = this.selectedHour ? +this.selectedHour + 1 : '';
@@ -119,6 +130,8 @@ export class NgxTimepickerComponent {
     }
   }
   decrement(type) {
+    this.resetError();
+
     const isHour = type === 'hour';
     if (isHour) {
       const hour = this.selectedHour ? +this.selectedHour - 1 : '';
@@ -130,8 +143,9 @@ export class NgxTimepickerComponent {
   }
 
   calculateMinute(minute, manualEntry?: boolean) {
-    const maxMinute = 59;
     const minMinute = 0;
+    const maxMinute = 59;
+
     let modifiedMinute = this.calculateTime(
       minute,
       minMinute,
@@ -144,8 +158,9 @@ export class NgxTimepickerComponent {
   }
 
   calculateHour(hour, manualEntry?: boolean) {
-    const maxHour = this.hasMeridian ? 12 : 23;
     const minHour = this.hasMeridian ? 1 : 0;
+    const maxHour = this.hasMeridian ? 12 : 23;
+
     let modifiedHour = this.calculateTime(hour, minHour, maxHour, manualEntry);
     if (manualEntry) return modifiedHour ? modifiedHour.toString() : '';
     return this.padWithZero(modifiedHour);
@@ -164,6 +179,45 @@ export class NgxTimepickerComponent {
       : val;
   }
 
+  isTimeInRange(
+    currentTime,
+    minTime: string | null = null,
+    maxTime: string | null = null
+  ): TimeRangeValidation {
+    const currentTimeObj = this.parseTime(currentTime);
+    const currentInMinutes =
+      currentTimeObj?.hours * 60 + currentTimeObj?.minutes;
+
+    const minInMinutes = minTime
+      ? this.parseTime(minTime)?.hours * 60 + this.parseTime(minTime)?.minutes
+      : -Infinity;
+    const maxInMinutes = maxTime
+      ? this.parseTime(maxTime)?.hours * 60 + this.parseTime(maxTime)?.minutes
+      : Infinity;
+
+    return {
+      status:
+        currentInMinutes >= minInMinutes && currentInMinutes <= maxInMinutes,
+      beforeMin: currentInMinutes < minInMinutes,
+      afterMax: currentInMinutes > maxInMinutes,
+    };
+  }
+
+  parseTime(timeStr) {
+    if (!timeStr) return;
+    const [time, meridiem] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+
+    if (meridiem) {
+      if (meridiem.toLowerCase() === 'pm' && hours !== 12) {
+        hours += 12;
+      } else if (meridiem.toLowerCase() === 'am' && hours === 12) {
+        hours = 0;
+      }
+    }
+    return { hours, minutes };
+  }
+
   onBlur(event, type) {
     const value = event.target.value;
     const modifiedVal = this.padWithZero(value);
@@ -180,7 +234,6 @@ export class NgxTimepickerComponent {
   }
 
   validate(val, type?) {
-    console.log('KBT NGMODELCHANGE');
     if (val != 0 && !val) return;
     if (type === 'hour') {
       const hour = this.calculateHour(val, true);
@@ -193,18 +246,46 @@ export class NgxTimepickerComponent {
     }
   }
 
-  showPicker() {
-    // this.timePicker.openMenu();
+  handleError(timeInRange: TimeRangeValidation) {
+    this.resetError();
+    if (this.showError) {
+      const minErr =
+        this.minErrorMessage || `Time should be greater than ${this.minTime}`;
+      const maxErr =
+        this.maxErrorMessage || `Time should be less than ${this.maxTime}`;
+
+      if (timeInRange.beforeMin) this.minTimeError = minErr;
+      else if (timeInRange.afterMax) this.maxTimeError = maxErr;
+    }
+    this.onerror.emit(timeInRange);
   }
 
-  hidePicker() {
-    this.selectedTime =
+  resetError() {
+    this.minTimeError = '';
+    this.maxTimeError = '';
+  }
+
+  onDone() {
+    let selectedTime =
       this.padWithZero(this.selectedHour) +
       ':' +
       this.padWithZero(this.selectedMinute);
     if (this.hasMeridian) {
-      this.selectedTime += ` ${this.selectedMeridian}`;
+      selectedTime += ` ${this.selectedMeridian}`;
     }
+
+    const timeInRange = this.isTimeInRange(
+      selectedTime,
+      this.minTime,
+      this.maxTime
+    );
+    if (!timeInRange.status) {
+      this.handleError(timeInRange);
+      if(this.showError) return;
+    }
+
+    this.selectedTime = selectedTime;
+
     this.timePickerTriger.closeMenu();
     this.onClose && this.onClose(this.selectedTime);
     this.selectedTime = '';

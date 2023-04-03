@@ -8,5 +8,11 @@ import { Component } from '@angular/core';
 export class AppComponent {
   title = 'demo';
   selectedTime = '1:00 PM';
+  minTime = '';
+  maxTime = '11:00 PM';
   enableMeridian: boolean = true;
+  onTimePickerError(status) {
+    console.log("kbt ~ file: app.component.ts:15 ~ AppComponent ~ onTimePickerError ~ status:", status)
+    
+  }
 }

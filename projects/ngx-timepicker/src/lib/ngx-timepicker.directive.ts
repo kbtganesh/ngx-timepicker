@@ -29,10 +29,12 @@ export class NgxTimepickerDirective
   isDisabled: boolean = false;
   _value;
   @Input('meridian') meridian: boolean = false;
+  @Input('minTime') minTime: string = '';
+  @Input('maxTime') maxTime: string = '';
   @Input()
   set value(value: string) {
     console.log("kbt ~ file: time-picker-trigger.directive.ts:32 ~ setvalue ~ value:", value)
-    this.timePicker?.setValue(value, this.meridian);
+    this.timePicker?.setValue(value, this.meridian, this.minTime, this.maxTime);
     this._value = value;
     this.updateInputValue(value);
 
@@ -46,9 +48,8 @@ export class NgxTimepickerDirective
   }
 
   ngAfterViewInit() {
-    this.meridian
     this.trigger.menuOpened.subscribe(_ => {
-      this.timePicker?.setValue(this.value, this.meridian);
+      this.timePicker?.setValue(this.value, this.meridian, this.minTime, this.maxTime);
     })
   }
 
