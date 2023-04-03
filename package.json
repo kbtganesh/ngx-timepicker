@@ -6,7 +6,7 @@
     "start": "ng serve --port=4000 --host=0.0.0.0",
     "lib": "ng build ngx-timepicker --watch",
     "build-lib": "ng build ngx-timepicker",
-    "build": "ng build",
+    "build:demo": "ng build demo --output-path docs --base-href /ngx-timepicker/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
