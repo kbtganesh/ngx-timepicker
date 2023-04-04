@@ -1,64 +1,102 @@
-<h1 class="welcome">W</h1>
-<label>
-  <input type="checkbox" [(ngModel)]="enableMeridian" />
-  {{ enableMeridian ? "Checked" : "Unchecked" }}
-</label>
-<mat-form-field>
-  <input
-    matInput
-    [matMenuTriggerFor]="timePicker.menu"
-    #timePickerTrigger="matMenuTrigger"
-    [ngxTimepicker]="timePicker"
-    [minTime]="minTime"
-    [maxTime]="maxTime"
-    [(ngModel)]="selectedTime"
-    placeholder="Start Time"
-    [meridian]="enableMeridian"
-    type="text"
-    readonly
-  />
-</mat-form-field>
-<app-time-picker
-  #timePicker
-  [trigger]="timePickerTrigger"
-  [minErrorMessage]="'Set time greater than ' + minTime"
-  [maxErrorMessage]="'Set time before ' + maxTime"
-  [showError]="true"
-  (onerror)="onTimePickerError($event)"
-></app-time-picker>
-<mat-form-field>
-  <input
-    matInput
-    [matMenuTriggerFor]="minTimepicker.menu"
-    #minTimepickerTrigger="matMenuTrigger"
-    [ngxTimepicker]="minTimepicker"
-    [(ngModel)]="minTime"
-    placeholder="Min Time"
-    [meridian]="enableMeridian"
-    type="text"
-    readonly
-  />
-</mat-form-field>
-<app-time-picker
-  #minTimepicker
-  [trigger]="minTimepickerTrigger"
-></app-time-picker>
-<mat-form-field>
-  <input
-    matInput
-    [matMenuTriggerFor]="maxTimepicker.menu"
-    #maxTimepickerTrigger="matMenuTrigger"
-    [ngxTimepicker]="maxTimepicker"
-    [(ngModel)]="maxTime"
-    placeholder="Max Time"
-    type="text"
-    readonly
-  />
-</mat-form-field>
-<app-time-picker
-  #maxTimepicker
-  [trigger]="maxTimepickerTrigger"
-></app-time-picker>
+<div class="demo-container">
+  <h2 class="welcome">ngx-timepicker</h2>
 
-<div>selectedTime-{{ selectedTime }}</div>
-<div>selectedTime-{{ enableMeridian }}</div>
+  <div class="timepicker">
+    <mat-form-field>
+      <input
+        matInput
+        [matMenuTriggerFor]="timePicker.menu"
+        #timePickerTrigger="matMenuTrigger"
+        [ngxTimepicker]="timePicker"
+        [minTime]="minTime"
+        [maxTime]="maxTime"
+        [(ngModel)]="selectedTime"
+        placeholder="Selected Time"
+        [meridian]="enableMeridian"
+        type="text"
+        readonly
+      />
+    </mat-form-field>
+    <app-time-picker
+      #timePicker
+      [trigger]="timePickerTrigger"
+      [showError]="showError"
+      (onerror)="onTimePickerError($event)"
+    ></app-time-picker>
+  </div>
+  <div class="output">
+    <code>selectedTime</code>: "{{ selectedTime }}"
+    <div style="margin-top: 20px" *ngIf="errorEmitted">
+      <div>
+        Error Emitted by
+        <code>(onerror)</code>
+      </div>
+      <code>{{ errorEmitted }}</code>
+    </div>
+  </div>
+  <div class="configurations">
+    <h3>Configurations</h3>
+    <label class="checkbox">
+      <input
+        type="checkbox"
+        [(ngModel)]="enableMeridian"
+        (ngModelChange)="setTemplate()"
+      />
+      <code>meridian</code><span style="margin-left: 4px">AM/PM</span>
+    </label>
+    <label class="checkbox">
+      <input
+        type="checkbox"
+        [(ngModel)]="showError"
+        (ngModelChange)="setTemplate()"
+      />
+      <code>showError</code
+      ><span style="margin-left: 4px">Show error inside popup</span>
+    </label>
+    <div class="min-max-validation">
+      <div class="min-time">
+        <mat-form-field>
+          <input
+            matInput
+            [matMenuTriggerFor]="minTimepicker.menu"
+            #minTimepickerTrigger="matMenuTrigger"
+            [ngxTimepicker]="minTimepicker"
+            [(ngModel)]="minTime"
+            placeholder="minTime"
+            [meridian]="enableMeridian"
+            type="text"
+            readonly
+          />
+        </mat-form-field>
+        <app-time-picker
+          #minTimepicker
+          [trigger]="minTimepickerTrigger"
+        ></app-time-picker>
+        <button class="clear-button" (click)="remove('min')">X</button>
+      </div>
+      <div class="max-time">
+        <mat-form-field>
+          <input
+            matInput
+            [matMenuTriggerFor]="maxTimepicker.menu"
+            #maxTimepickerTrigger="matMenuTrigger"
+            [ngxTimepicker]="maxTimepicker"
+            [(ngModel)]="maxTime"
+            placeholder="maxTime"
+            type="text"
+            readonly
+          />
+        </mat-form-field>
+        <app-time-picker
+          #maxTimepicker
+          [trigger]="maxTimepickerTrigger"
+        ></app-time-picker>
+        <button class="clear-button" (click)="remove('max')">X</button>
+      </div>
+    </div>
+  </div>
+  <div class="template">
+    <h3>Usage</h3>
+    <pre>{{ templateUsage }}</pre>
+  </div>
+</div>

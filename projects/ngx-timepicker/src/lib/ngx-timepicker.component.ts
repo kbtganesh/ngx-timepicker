@@ -80,6 +80,7 @@ export class NgxTimepickerComponent {
       minTime,
       maxTime
     );
+    this.resetError();
     this.minTime = minTime;
     this.maxTime = maxTime;
     const [hhmm, meridian] = value ? value?.split(' ') : [];
